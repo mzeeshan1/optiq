@@ -1,0 +1,36 @@
+{{define "account.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+{{$u := .User}}
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Hello, {{$u.FirstName}}</h1>
+  <p class="mt-1 text-slate-500">{{$u.Email}} · customer since {{date $u.CreatedAt}}</p>
+
+  <div class="mt-8 grid sm:grid-cols-3 gap-4">
+    <a href="/orders" class="rounded-2xl bg-slate-50 p-5 hover:bg-slate-100"><p class="text-2xl font-semibold text-slate-900">{{.OrderCount}}</p><p class="text-sm text-slate-500">Orders</p></a>
+    <div class="rounded-2xl bg-slate-50 p-5"><p class="text-2xl font-semibold text-slate-900">{{money .Spent}}</p><p class="text-sm text-slate-500">Total spent</p></div>
+    <a href="/appointments" class="rounded-2xl bg-slate-50 p-5 hover:bg-slate-100"><p class="text-2xl font-semibold text-slate-900">Eye test</p><p class="text-sm text-slate-500">Book a free appointment</p></a>
+  </div>
+
+  <form method="POST" action="/account" class="mt-10 space-y-4 max-w-xl">
+    <h2 class="text-lg font-semibold text-slate-900">Personal details</h2>
+    {{if .Saved}}<div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-lg px-4 py-3">Your details have been saved.</div>{{end}}
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="block text-sm font-medium text-slate-700 mb-1" for="first_name">First name</label><input id="first_name" name="first_name" value="{{$u.FirstName}}" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-1" for="last_name">Last name</label><input id="last_name" name="last_name" value="{{$u.LastName}}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+    </div>
+    <div><label class="block text-sm font-medium text-slate-700 mb-1" for="phone">Phone</label><input id="phone" name="phone" value="{{$u.Phone}}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+    <div><label class="block text-sm font-medium text-slate-700 mb-1" for="street">Street and number</label><input id="street" name="street" value="{{$u.Street}}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+    <div class="grid grid-cols-[120px_1fr] gap-3">
+      <div><label class="block text-sm font-medium text-slate-700 mb-1" for="postal_code">Postcode</label><input id="postal_code" name="postal_code" value="{{$u.PostalCode}}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-1" for="city">City</label><input id="city" name="city" value="{{$u.City}}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+    </div>
+    <button class="bg-slate-900 text-white font-semibold rounded-full px-6 py-2.5 text-sm hover:bg-slate-700">Save changes</button>
+  </form>
+
+  <form method="POST" action="/logout" class="mt-10"><button class="text-sm text-slate-600 underline">Sign out</button></form>
+</div>
+
+{{template "foot" .}}
+{{end}}

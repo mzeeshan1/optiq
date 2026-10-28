@@ -1,0 +1,14 @@
+{{define "error.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+<div class="max-w-xl mx-auto px-4 py-24 text-center">
+  <p class="text-sm font-mono text-slate-400">{{.Status}}</p>
+  <h1 class="mt-2 text-3xl font-bold text-slate-900">{{.Heading}}</h1>
+  <p class="mt-3 text-slate-500">{{.Message}}</p>
+  <div class="mt-8 flex justify-center gap-3">
+    <a href="/" class="bg-slate-900 text-white rounded-full px-6 py-2.5 text-sm font-semibold">Back to the shop</a>
+    <a href="javascript:history.back()" class="ring-1 ring-slate-300 rounded-full px-6 py-2.5 text-sm font-semibold">Go back</a>
+  </div>
+</div>
+{{template "foot" .}}
+{{end}}

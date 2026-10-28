@@ -1,0 +1,27 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "optiq.fullname" . }}-service-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "optiq.labels" . | nindent 4 }}
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      {{- include "optiq.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: app
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: "http_requests_total|http_request_duration_seconds.*|shop_.*"
+          action: keep
+{{- end }}

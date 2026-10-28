@@ -1,0 +1,131 @@
+{{define "product.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+{{$p := .Product}}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <p class="text-sm text-slate-500">
+    <a href="/" class="hover:underline">Home</a> /
+    <a href="/shop?category={{$p.CategorySlug}}" class="hover:underline">{{$p.CategoryName}}</a> /
+    <a href="/shop?category={{$p.CategorySlug}}&brand={{$p.BrandSlug}}" class="hover:underline">{{$p.BrandName}}</a>
+  </p>
+
+  <div class="mt-6 grid lg:grid-cols-2 gap-10">
+    <div class="relative rounded-3xl bg-slate-50 aspect-[4/3] flex items-center justify-center p-12">
+      {{frame $p.CategoryKind $p.FrameShape $p.FrameMaterial $p.ColorHex}}
+      {{if $p.OnSale}}<span class="absolute top-5 left-5 bg-red-600 text-white text-sm font-semibold rounded px-2 py-1">-{{$p.DiscountPercent}}%</span>{{end}}
+    </div>
+
+    <div>
+      <p class="text-sm uppercase tracking-wider text-slate-500">{{$p.BrandName}}</p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900">{{$p.Name}}</h1>
+      {{if $p.ReviewCount}}
+      <a href="#reviews" class="mt-2 inline-block text-amber-500">{{stars $p.RatingAvg}} <span class="text-sm text-slate-500">{{printf "%.1f" $p.RatingAvg}} · {{$p.ReviewCount}} reviews</span></a>
+      {{end}}
+
+      <div class="mt-5 flex items-baseline gap-3">
+        <span class="text-3xl font-semibold {{if $p.OnSale}}text-red-600{{else}}text-slate-900{{end}}">{{money $p.Price}}</span>
+        {{if $p.OnSale}}<span class="text-lg line-through text-slate-400">{{money $p.CompareAtPrice}}</span>{{end}}
+      </div>
+      <p class="text-xs text-slate-500 mt-1">Incl. VAT · {{if ge $p.Price 49.0}}Free shipping{{else}}Free shipping over €49{{end}}</p>
+
+      <div class="mt-6 flex items-center gap-2 text-sm">
+        <span class="h-5 w-5 rounded-full ring-1 ring-slate-300" style="background-color: {{$p.ColorHex}}"></span>
+        <span class="text-slate-700">Colour: <span class="font-medium">{{$p.Color}}</span></span>
+      </div>
+
+      {{if $p.InStock}}
+      <form method="POST" action="/cart/items" class="mt-6 space-y-5" data-product-id="{{$p.ID}}">
+        <input type="hidden" name="product_id" value="{{$p.ID}}">
+        {{$opts := $p.LensOptions}}
+        {{if gt (len $opts) 1}}
+        <fieldset>
+          <legend class="text-sm font-semibold text-slate-900 mb-2">Lenses</legend>
+          <div class="space-y-2">
+            {{range $i, $o := $opts}}
+            <label class="flex items-center justify-between gap-3 rounded-xl ring-1 ring-slate-200 px-4 py-3 cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-slate-900">
+              <span class="flex items-center gap-3">
+                <input type="radio" name="lens_option" value="{{$o.Code}}" {{if eq $i 0}}checked{{end}} class="accent-slate-900">
+                <span class="text-sm text-slate-800">{{$o.Label}}</span>
+              </span>
+              <span class="text-sm text-slate-500">{{if $o.Price}}+{{money $o.Price}}{{else}}Included{{end}}</span>
+            </label>
+            {{end}}
+          </div>
+        </fieldset>
+        {{else}}
+        <input type="hidden" name="lens_option" value="none">
+        {{end}}
+
+        <div class="flex gap-3">
+          <select name="quantity" class="border border-slate-300 rounded-full px-4 py-3 bg-white text-sm" aria-label="Quantity">
+            {{range seq 1 5}}<option value="{{.}}">{{.}}</option>{{end}}
+          </select>
+          <button type="submit" class="flex-1 bg-slate-900 text-white font-semibold rounded-full py-3 hover:bg-slate-700">Add to basket</button>
+        </div>
+      </form>
+      <p class="mt-3 text-sm {{if $p.LowStock}}text-amber-600{{else}}text-emerald-700{{end}}">
+        {{if $p.LowStock}}Only {{$p.Stock}} left{{else}}In stock{{end}} · ships in 1–3 days
+      </p>
+      {{else}}
+      <div class="mt-6 rounded-xl bg-slate-50 px-4 py-4 text-sm text-slate-600">Sold out. We restock most frames within a few days.</div>
+      {{end}}
+
+      <form method="POST" action="/wishlist/{{$p.ID}}" class="mt-4">
+        <input type="hidden" name="next" value="/products/{{$p.Slug}}">
+        <button type="submit" class="text-sm font-medium text-slate-700 hover:text-slate-900">
+          {{if .Wishlisted}}♥ Saved to wishlist{{else}}♡ Save to wishlist{{end}}
+        </button>
+      </form>
+
+      <div class="mt-8 border-t border-slate-200 pt-6">
+        <p class="text-slate-600 leading-relaxed">{{$p.Description}}</p>
+        <dl class="mt-6 grid grid-cols-2 gap-y-3 text-sm">
+          {{if $p.FrameShape}}{{if ne $p.CategoryKind "accessory"}}<dt class="text-slate-500">Shape</dt><dd class="text-slate-900">{{title $p.FrameShape}}</dd>{{end}}{{end}}
+          {{if $p.FrameMaterial}}<dt class="text-slate-500">Material</dt><dd class="text-slate-900">{{title $p.FrameMaterial}}</dd>{{end}}
+          {{if $p.Measurements}}<dt class="text-slate-500">Size</dt><dd class="text-slate-900">{{$p.Measurements}} mm</dd>{{end}}
+          <dt class="text-slate-500">For</dt><dd class="text-slate-900">{{title $p.Gender}}</dd>
+          <dt class="text-slate-500">Article no.</dt><dd class="text-slate-900 font-mono text-xs pt-0.5">{{$p.SKU}}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <section id="reviews" class="mt-16 grid lg:grid-cols-[1fr_360px] gap-10">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-900">Reviews {{if $p.ReviewCount}}<span class="text-slate-400 font-normal">({{$p.ReviewCount}})</span>{{end}}</h2>
+      {{if .Added}}<p class="mt-3 text-sm text-emerald-700">Thanks, your review has been published.</p>{{end}}
+      {{range .Reviews}}
+      <article class="mt-6 border-b border-slate-100 pb-6">
+        <p class="text-amber-500">{{stars .Rating}}</p>
+        <p class="mt-1 font-medium text-slate-900">{{.Title}}</p>
+        <p class="mt-1 text-sm text-slate-600">{{.Body}}</p>
+        <p class="mt-2 text-xs text-slate-400">{{.UserName}} · {{date .CreatedAt}}</p>
+      </article>
+      {{else}}
+      <p class="mt-4 text-slate-500">No reviews yet. Be the first to share what you think.</p>
+      {{end}}
+    </div>
+    <div class="rounded-2xl bg-slate-50 p-6 h-fit">
+      <h3 class="font-semibold text-slate-900">Write a review</h3>
+      {{if .LoggedIn}}
+      <form method="POST" action="/products/{{$p.Slug}}/reviews" class="mt-4 space-y-3 text-sm">
+        <select name="rating" required class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+          <option value="5">★★★★★ Excellent</option><option value="4">★★★★☆ Good</option>
+          <option value="3">★★★☆☆ Average</option><option value="2">★★☆☆☆ Poor</option><option value="1">★☆☆☆☆ Terrible</option>
+        </select>
+        <input name="title" maxlength="120" placeholder="Title" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        <textarea name="body" maxlength="2000" rows="4" placeholder="How do they fit and feel?" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea>
+        <button class="w-full bg-slate-900 text-white font-semibold rounded-full py-2 hover:bg-slate-700">Submit review</button>
+      </form>
+      {{else}}
+      <p class="mt-2 text-sm text-slate-500"><a href="/login?next=/products/{{$p.Slug}}" class="text-sky-800 font-medium underline">Sign in</a> to write a review.</p>
+      {{end}}
+    </div>
+  </section>
+
+  {{template "shelf" (dict "Heading" "You might also like" "Products" .Related)}}
+</div>
+
+{{template "foot" .}}
+{{end}}

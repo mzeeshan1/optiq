@@ -1,0 +1,130 @@
+{{define "filterLink"}}
+<a href="{{.URL}}" class="block py-1 {{if .Active}}font-semibold text-slate-900{{else}}text-slate-600 hover:text-slate-900{{end}}">{{if .Active}}✓ {{end}}{{.Label}}</a>
+{{end}}
+
+{{define "shop.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+{{$q := .Query}}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-sm text-slate-500"><a href="/" class="hover:underline">Home</a> / <a href="/shop" class="hover:underline">Shop</a>{{if .Category.Slug}} / {{.Category.Name}}{{end}}</p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900">{{.Heading}}</h1>
+      {{if .Category.Description}}<p class="mt-1 text-slate-500">{{.Category.Description}}</p>{{end}}
+    </div>
+    <form method="GET" action="/shop" class="flex items-center gap-2 text-sm">
+      {{range $k, $v := $q}}{{if and (ne $k "sort") (ne $k "page")}}<input type="hidden" name="{{$k}}" value="{{index $v 0}}">{{end}}{{end}}
+      <label for="sort" class="text-slate-500">Sort</label>
+      <select id="sort" name="sort" onchange="this.form.submit()" class="border border-slate-300 rounded-lg px-3 py-2 bg-white">
+        {{range .Sorts}}<option value="{{.Code}}" {{if eq .Code $.Sort}}selected{{end}}>{{.Label}}</option>{{end}}
+      </select>
+      <noscript><button class="underline">Apply</button></noscript>
+    </form>
+  </div>
+
+  {{if .Chips}}
+  <div class="mt-5 flex flex-wrap items-center gap-2 text-sm">
+    {{range .Chips}}
+      <a href="{{qs $q .Key ""}}" class="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 rounded-full px-3 py-1">{{.Label}} <span class="text-slate-400">✕</span></a>
+    {{end}}
+    <a href="{{if .Category.Slug}}/shop?category={{.Category.Slug}}{{else}}/shop{{end}}" class="text-slate-500 underline ml-1">Clear all</a>
+  </div>
+  {{end}}
+
+  <div class="mt-8 grid lg:grid-cols-[220px_1fr] gap-10">
+    <aside class="text-sm space-y-7">
+      {{if not .Category.Slug}}
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Category</p>
+        {{range .Categories}}{{template "filterLink" (dict "URL" (qs $q "category" .Slug) "Label" .Name "Active" false)}}{{end}}
+      </div>
+      {{end}}
+
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">For</p>
+        {{range $g := (list "women" "men" "unisex" "kids")}}
+          {{$active := eq ($q.Get "gender") $g}}
+          {{template "filterLink" (dict "URL" (qs $q "gender" (ternary $active "" $g)) "Label" (title $g) "Active" $active)}}
+        {{end}}
+      </div>
+
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Price</p>
+        {{range .PriceBands}}
+          {{$active := and (eq ($q.Get "min") .Min) (eq ($q.Get "max") .Max)}}
+          {{template "filterLink" (dict "URL" (ternary $active (qs $q "min" "" "max" "") (qs $q "min" .Min "max" .Max)) "Label" .Label "Active" $active)}}
+        {{end}}
+        {{$sale := eq ($q.Get "sale") "1"}}
+        {{template "filterLink" (dict "URL" (qs $q "sale" (ternary $sale "" "1")) "Label" "On sale" "Active" $sale)}}
+      </div>
+
+      {{if .Facets.Shapes}}
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Frame shape</p>
+        {{range .Facets.Shapes}}
+          {{$active := eq ($q.Get "shape") .}}
+          {{template "filterLink" (dict "URL" (qs $q "shape" (ternary $active "" .)) "Label" (title .) "Active" $active)}}
+        {{end}}
+      </div>
+      {{end}}
+
+      {{if .Facets.Materials}}
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Material</p>
+        {{range .Facets.Materials}}
+          {{$active := eq ($q.Get "material") .}}
+          {{template "filterLink" (dict "URL" (qs $q "material" (ternary $active "" .)) "Label" (title .) "Active" $active)}}
+        {{end}}
+      </div>
+      {{end}}
+
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Colour</p>
+        <div class="flex flex-wrap gap-2">
+          {{range .Facets.Colors}}
+            {{$active := eq ($q.Get "color") .Name}}
+            <a href="{{qs $q "color" (ternary $active "" .Name)}}" title="{{.Name}}"
+              class="h-7 w-7 rounded-full ring-offset-2 {{if $active}}ring-2 ring-slate-900{{else}}ring-1 ring-slate-300 hover:ring-slate-500{{end}}"
+              style="background-color: {{.Hex}}"></a>
+          {{end}}
+        </div>
+      </div>
+
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Brand</p>
+        {{range .Facets.Brands}}
+          {{$active := eq ($q.Get "brand") .Slug}}
+          {{template "filterLink" (dict "URL" (qs $q "brand" (ternary $active "" .Slug)) "Label" .Name "Active" $active)}}
+        {{end}}
+      </div>
+    </aside>
+
+    <div>
+      <p class="text-sm text-slate-500 mb-5">{{.Total}} products</p>
+      {{if .Products}}
+      <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10">
+        {{range .Products}}{{template "productCard" .}}{{end}}
+      </div>
+      {{else}}
+      <div class="rounded-2xl bg-slate-50 p-12 text-center">
+        <p class="text-lg font-medium text-slate-900">No products match those filters.</p>
+        <p class="text-slate-500 mt-1">Try removing a filter or searching for something broader.</p>
+        <a href="/shop" class="inline-block mt-5 bg-slate-900 text-white rounded-full px-5 py-2 text-sm font-semibold">See all products</a>
+      </div>
+      {{end}}
+
+      {{if gt .TotalPages 1}}
+      <nav class="mt-12 flex items-center justify-center gap-4 text-sm">
+        {{if gt .Page 1}}<a href="{{qs $q "page" .PrevPage}}" class="rounded-full ring-1 ring-slate-300 px-4 py-2 hover:ring-slate-500">← Previous</a>{{end}}
+        <span class="text-slate-500">Page {{.Page}} of {{.TotalPages}}</span>
+        {{if lt .Page .TotalPages}}<a href="{{qs $q "page" .NextPage}}" class="rounded-full ring-1 ring-slate-300 px-4 py-2 hover:ring-slate-500">Next →</a>{{end}}
+      </nav>
+      {{end}}
+    </div>
+  </div>
+</div>
+
+{{template "foot" .}}
+{{end}}

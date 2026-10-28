@@ -1,0 +1,80 @@
+{{define "summary"}}
+<div class="rounded-2xl bg-slate-50 p-6 h-fit text-sm">
+  <h2 class="font-semibold text-slate-900 text-base">Order summary</h2>
+  <dl class="mt-4 space-y-2">
+    <div class="flex justify-between"><dt class="text-slate-600">Subtotal ({{.Count}} items)</dt><dd>{{money .Subtotal}}</dd></div>
+    <div class="flex justify-between"><dt class="text-slate-600">Shipping</dt><dd>{{if .Shipping}}{{money .Shipping}}{{else}}<span class="text-emerald-700">Free</span>{{end}}</dd></div>
+    <div class="flex justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-900"><dt>Total</dt><dd>{{money .Total}}</dd></div>
+  </dl>
+  <p class="mt-1 text-xs text-slate-500">Incl. 19% VAT</p>
+</div>
+{{end}}
+
+{{define "cart.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Your basket</h1>
+
+  {{if .Cart.Items}}
+  <div class="mt-8 grid lg:grid-cols-[1fr_340px] gap-10">
+    <div>
+      {{if .Cart.AmountToFreeShipping}}
+      <div class="mb-6 rounded-xl bg-sky-50 px-4 py-3 text-sm text-sky-900">
+        Add <strong>{{money .Cart.AmountToFreeShipping}}</strong> more for free shipping.
+        <div class="mt-2 h-1.5 rounded-full bg-sky-100"><div class="h-1.5 rounded-full bg-sky-700" style="width: {{pct .Cart.Subtotal .Threshold}}%"></div></div>
+      </div>
+      {{end}}
+
+      <ul class="divide-y divide-slate-100">
+        {{range .Cart.Items}}
+        <li class="py-5 flex gap-5" data-cart-item-id="{{.ID}}">
+          <a href="/products/{{.Product.Slug}}" class="w-32 shrink-0 aspect-[4/3] rounded-xl bg-slate-50 flex items-center justify-center p-3">
+            {{frame .Product.CategoryKind .Product.FrameShape .Product.FrameMaterial .Product.ColorHex}}
+          </a>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between gap-4">
+              <div>
+                <p class="text-xs uppercase tracking-wider text-slate-500">{{.Product.BrandName}}</p>
+                <a href="/products/{{.Product.Slug}}" class="font-medium text-slate-900 hover:underline">{{.Product.Name}}</a>
+                <p class="text-sm text-slate-500">{{.Product.Color}} · {{.Lens.Label}}{{if .Lens.Price}} (+{{money .Lens.Price}}){{end}}</p>
+              </div>
+              <p class="font-semibold text-slate-900 whitespace-nowrap">{{money .LineTotal}}</p>
+            </div>
+            <div class="mt-3 flex items-center gap-4 text-sm">
+              <form method="POST" action="/cart/items/{{.ID}}" class="flex items-center gap-2">
+                <select name="quantity" onchange="this.form.submit()" class="border border-slate-300 rounded-lg px-2 py-1 bg-white" aria-label="Quantity">
+                  {{$q := .Quantity}}{{range seq 1 10}}<option value="{{.}}" {{if eq . $q}}selected{{end}}>{{.}}</option>{{end}}
+                </select>
+                <noscript><button class="underline">Update</button></noscript>
+              </form>
+              <form method="POST" action="/cart/items/{{.ID}}/delete">
+                <button class="text-slate-500 hover:text-red-600 underline">Remove</button>
+              </form>
+              {{if .Product.LowStock}}<span class="text-amber-600">Only {{.Product.Stock}} left</span>{{end}}
+              {{if not .Product.InStock}}<span class="text-red-600">Sold out</span>{{end}}
+            </div>
+          </div>
+        </li>
+        {{end}}
+      </ul>
+    </div>
+
+    <div class="space-y-4">
+      {{template "summary" .Cart}}
+      <a href="/checkout" class="block text-center bg-slate-900 text-white font-semibold rounded-full py-3 hover:bg-slate-700">Go to checkout</a>
+      <a href="/shop" class="block text-center text-sm text-slate-600 underline">Continue shopping</a>
+    </div>
+  </div>
+  {{else}}
+  <div class="mt-8 rounded-2xl bg-slate-50 p-12 text-center">
+    <p class="text-lg font-medium text-slate-900">Your basket is empty.</p>
+    <p class="text-slate-500 mt-1">Find a frame you love, or try on in store.</p>
+    <a href="/shop?category=eyeglasses" class="inline-block mt-5 bg-slate-900 text-white rounded-full px-6 py-2.5 text-sm font-semibold">Shop glasses</a>
+  </div>
+  {{end}}
+</div>
+
+{{template "foot" .}}
+{{end}}

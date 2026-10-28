@@ -1,0 +1,144 @@
+{{define "head"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{if .Title}}{{.Title}} · {{end}}Optiq</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
+</head>
+<body class="bg-white min-h-screen text-slate-800 flex flex-col">
+{{end}}
+
+{{define "nav"}}
+<div class="bg-slate-900 text-slate-200 text-xs">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap justify-center gap-x-8 gap-y-1">
+    <span>Free shipping over €49</span>
+    <span>Free eye test in 40 stores</span>
+    <span>30-day returns</span>
+  </div>
+</div>
+<header class="border-b border-slate-200 sticky top-0 bg-white/95 backdrop-blur z-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4 sm:gap-6">
+    <a href="/" class="flex items-center gap-2 shrink-0">
+      <svg viewBox="0 0 48 20" class="h-5 w-12 text-sky-800" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="10" r="8"/><circle cx="37" cy="10" r="8"/><path d="M19 9 Q24 5 29 9"/></svg>
+      <span class="text-xl font-bold tracking-tight text-slate-900">optiq</span>
+      <span class="hidden sm:inline text-[10px] font-mono bg-slate-100 text-slate-500 rounded px-1.5 py-0.5">{{ appVersion }}</span>
+    </a>
+
+    <form action="/shop" method="GET" class="flex-1 max-w-xl">
+      <input type="search" name="q" value="{{.Search}}" placeholder="Search frames, brands, colours…"
+        class="w-full bg-slate-100 border border-transparent rounded-full px-4 py-2 text-sm focus:outline-none focus:bg-white focus:border-slate-300" />
+    </form>
+
+    <nav class="flex items-center gap-4 sm:gap-5 text-sm font-medium text-slate-700 shrink-0">
+      <a href="/stores" class="hidden md:inline hover:text-sky-800">Stores</a>
+      <a href="/appointments" class="hidden md:inline hover:text-sky-800">Eye test</a>
+      {{if .LoggedIn}}
+        <a href="/wishlist" class="hover:text-sky-800" title="Wishlist">♡<span class="hidden lg:inline"> Wishlist</span></a>
+        <a href="/orders" class="hidden sm:inline hover:text-sky-800">Orders</a>
+        <a href="/account" class="hover:text-sky-800" title="{{.Email}}">Hi, {{.FirstName}}</a>
+      {{else}}
+        <a href="/login" class="hover:text-sky-800">Sign in</a>
+      {{end}}
+      <a href="/cart" class="relative inline-flex items-center gap-1 bg-slate-900 text-white rounded-full px-3 py-1.5 hover:bg-slate-700">
+        Basket{{if .CartCount}}<span class="ml-1 bg-white text-slate-900 rounded-full text-xs px-1.5">{{.CartCount}}</span>{{end}}
+      </a>
+    </nav>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 flex gap-6 overflow-x-auto text-sm">
+    {{range .Categories}}
+      <a href="/shop?category={{.Slug}}" class="py-2.5 whitespace-nowrap text-slate-600 hover:text-slate-900 border-b-2 border-transparent hover:border-slate-900">{{.Name}}</a>
+    {{end}}
+    <a href="/shop?sale=1" class="py-2.5 whitespace-nowrap text-red-600 font-medium border-b-2 border-transparent hover:border-red-600">Sale</a>
+  </div>
+</header>
+<main class="flex-1">
+{{end}}
+
+{{define "foot"}}
+</main>
+<footer class="mt-20 bg-slate-50 border-t border-slate-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+    <div>
+      <p class="font-semibold text-slate-900 mb-3">Shop</p>
+      <ul class="space-y-2 text-slate-600">
+        <li><a href="/shop?category=eyeglasses" class="hover:underline">Glasses</a></li>
+        <li><a href="/shop?category=sunglasses" class="hover:underline">Sunglasses</a></li>
+        <li><a href="/shop?category=contact-lenses" class="hover:underline">Contact lenses</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-semibold text-slate-900 mb-3">Services</p>
+      <ul class="space-y-2 text-slate-600">
+        <li><a href="/appointments" class="hover:underline">Book an eye test</a></li>
+        <li><a href="/stores" class="hover:underline">Store finder</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-semibold text-slate-900 mb-3">Account</p>
+      <ul class="space-y-2 text-slate-600">
+        <li><a href="/orders" class="hover:underline">Orders</a></li>
+        <li><a href="/wishlist" class="hover:underline">Wishlist</a></li>
+        <li><a href="/account" class="hover:underline">Profile</a></li>
+      </ul>
+    </div>
+    <div class="text-slate-500">
+      <p class="font-semibold text-slate-900 mb-3">optiq</p>
+      <p>A demo eyewear shop. Products, stores and prices are generated.</p>
+      {{if .LoggedIn}}
+      <form method="POST" action="/logout" class="mt-3"><button class="text-slate-600 hover:underline">Sign out</button></form>
+      {{end}}
+    </div>
+  </div>
+</footer>
+</body>
+</html>
+{{end}}
+
+{{define "alert"}}
+{{if .}}<div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-6">{{.}}</div>{{end}}
+{{end}}
+
+{{define "productCard"}}
+<a href="/products/{{.Slug}}" class="group block" data-product-slug="{{.Slug}}">
+  <div class="relative aspect-[4/3] bg-slate-50 rounded-2xl flex items-center justify-center p-6 group-hover:bg-slate-100 transition">
+    {{frame .CategoryKind .FrameShape .FrameMaterial .ColorHex}}
+    <div class="absolute top-3 left-3 flex gap-1.5">
+      {{if .OnSale}}<span class="bg-red-600 text-white text-[11px] font-semibold rounded px-1.5 py-0.5">-{{.DiscountPercent}}%</span>{{end}}
+      {{if .IsNew}}<span class="bg-sky-800 text-white text-[11px] font-semibold rounded px-1.5 py-0.5">New</span>{{end}}
+    </div>
+    {{if not .InStock}}<span class="absolute bottom-3 left-3 bg-white/90 text-slate-600 text-[11px] font-medium rounded px-1.5 py-0.5 ring-1 ring-slate-200">Sold out</span>{{end}}
+  </div>
+  <div class="mt-3 px-1">
+    <p class="text-[11px] uppercase tracking-wider text-slate-500">{{.BrandName}}</p>
+    <h3 class="text-sm font-medium text-slate-900 group-hover:underline leading-snug">{{.Name}}</h3>
+    <div class="flex items-center gap-1.5 mt-1">
+      <span class="h-3 w-3 rounded-full ring-1 ring-slate-300" style="background-color: {{.ColorHex}}"></span>
+      <span class="text-xs text-slate-500">{{.Color}}</span>
+    </div>
+    <div class="mt-1.5 flex items-baseline gap-2">
+      <span class="font-semibold {{if .OnSale}}text-red-600{{else}}text-slate-900{{end}}">{{money .Price}}</span>
+      {{if .OnSale}}<span class="text-xs line-through text-slate-400">{{money .CompareAtPrice}}</span>{{end}}
+    </div>
+    {{if .ReviewCount}}<p class="text-xs text-amber-500 mt-0.5">{{stars .RatingAvg}} <span class="text-slate-400">({{.ReviewCount}})</span></p>{{end}}
+  </div>
+</a>
+{{end}}
+
+{{define "shelf"}}
+{{if .Products}}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 mt-14">
+  <div class="flex items-end justify-between mb-5">
+    <h2 class="text-xl font-semibold text-slate-900">{{.Heading}}</h2>
+    {{if .Link}}<a href="{{.Link}}" class="text-sm font-medium text-sky-800 hover:underline">View all →</a>{{end}}
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-8">
+    {{range .Products}}{{template "productCard" .}}{{end}}
+  </div>
+</section>
+{{end}}
+{{end}}

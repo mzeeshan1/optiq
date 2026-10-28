@@ -1,0 +1,37 @@
+{{- if .Values.loadgen.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "optiq.fullname" . }}-loadgen
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "optiq.labels" . | nindent 4 }}
+    app.kubernetes.io/component: loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "optiq.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: loadgen
+  template:
+    metadata:
+      labels:
+        {{- include "optiq.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: loadgen
+    spec:
+      containers:
+        - name: loadgen
+          image: "{{ .Values.loadgen.image.repository }}:{{ .Values.loadgen.image.tag }}"
+          imagePullPolicy: {{ .Values.loadgen.image.pullPolicy }}
+          env:
+            - name: TARGET
+              value: {{ printf "http://%s" (include "optiq.fullname" .) | quote }}
+            - name: USERS
+              value: {{ .Values.loadgen.users | quote }}
+            - name: RPS
+              value: {{ .Values.loadgen.rps | quote }}
+            - name: ERROR_RATE
+              value: {{ .Values.loadgen.errorRate | quote }}
+          resources:
+            {{- toYaml .Values.loadgen.resources | nindent 12 }}
+{{- end }}

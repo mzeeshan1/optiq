@@ -1,0 +1,71 @@
+{{define "order.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+{{$o := .Order}}
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+  {{if .Placed}}
+  <div class="mb-8 rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-6 py-5">
+    <p class="font-semibold text-emerald-900">Thank you, your order is confirmed.</p>
+    <p class="text-sm text-emerald-800 mt-1">We've sent a confirmation to {{.Email}}. Prescription lenses are fitted in our workshop within 3 working days.</p>
+  </div>
+  {{end}}
+
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="text-sm text-slate-500"><a href="/orders" class="hover:underline">Orders</a> / {{$o.Number}}</p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900">Order {{$o.Number}}</h1>
+      <p class="text-sm text-slate-500 mt-1">Placed {{datetime $o.CreatedAt}}</p>
+    </div>
+    <span class="text-sm font-medium rounded-full px-3 py-1 ring-1 {{statusClass $o.Status}}" data-order-status="{{$o.Status}}">{{title (printf "%s" $o.Status)}}</span>
+  </div>
+
+  {{if ne (printf "%s" $o.Status) "cancelled"}}
+  <ol class="mt-8 grid grid-cols-4 gap-2 text-xs">
+    {{range $i, $s := .Steps}}
+    <li>
+      <div class="h-1.5 rounded-full {{if le $i $o.Progress}}bg-slate-900{{else}}bg-slate-200{{end}}"></div>
+      <p class="mt-2 {{if le $i $o.Progress}}text-slate-900 font-medium{{else}}text-slate-400{{end}}">{{$s}}</p>
+    </li>
+    {{end}}
+  </ol>
+  {{if $o.TrackingNumber}}<p class="mt-4 text-sm text-slate-600">Tracking number: <span class="font-mono">{{$o.TrackingNumber}}</span></p>{{end}}
+  {{end}}
+
+  <ul class="mt-8 divide-y divide-slate-100 border-y border-slate-100">
+    {{range $o.Items}}
+    <li class="py-4 flex gap-4 items-center">
+      <a href="/products/{{.ProductSlug}}" class="w-24 shrink-0 aspect-[4/3] rounded-lg bg-slate-50 flex items-center justify-center p-2">{{frame .CategoryKind .FrameShape "acetate" .ColorHex}}</a>
+      <div class="flex-1">
+        <a href="/products/{{.ProductSlug}}" class="font-medium text-slate-900 hover:underline">{{.ProductName}}</a>
+        <p class="text-sm text-slate-500">{{.Quantity}} × {{money .UnitPrice}}{{if .LensPrice}} + {{.LensLabel}} {{money .LensPrice}}{{else}} · {{.LensLabel}}{{end}}</p>
+        <p class="text-xs text-slate-400 font-mono">{{.SKU}}</p>
+      </div>
+      <p class="font-semibold text-slate-900">{{money .LineTotal}}</p>
+    </li>
+    {{end}}
+  </ul>
+
+  <div class="mt-8 grid sm:grid-cols-2 gap-8 text-sm">
+    <div>
+      <p class="font-semibold text-slate-900">Delivery address</p>
+      <p class="mt-2 text-slate-600">{{$o.ShipName}}<br>{{$o.ShipStreet}}<br>{{$o.ShipPostalCode}} {{$o.ShipCity}}<br>{{$o.ShipCountry}}</p>
+      <p class="mt-4 font-semibold text-slate-900">Payment</p>
+      <p class="mt-2 text-slate-600">{{$o.PaymentLabel}}</p>
+    </div>
+    <dl class="space-y-2">
+      <div class="flex justify-between"><dt class="text-slate-600">Subtotal</dt><dd>{{money $o.Subtotal}}</dd></div>
+      <div class="flex justify-between"><dt class="text-slate-600">Shipping</dt><dd>{{if $o.Shipping}}{{money $o.Shipping}}{{else}}Free{{end}}</dd></div>
+      <div class="flex justify-between border-t border-slate-200 pt-2 font-semibold text-slate-900 text-base"><dt>Total</dt><dd>{{money $o.Total}}</dd></div>
+    </dl>
+  </div>
+
+  {{if $o.CanCancel}}
+  <form method="POST" action="/orders/{{$o.ID}}/cancel" class="mt-10" onsubmit="return confirm('Cancel this order?')">
+    <button class="text-sm text-red-600 hover:text-red-800 underline">Cancel order</button>
+  </form>
+  {{end}}
+</div>
+
+{{template "foot" .}}
+{{end}}

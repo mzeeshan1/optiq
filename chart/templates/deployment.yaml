@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "optiq.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "optiq.labels" . | nindent 4 }}
+spec:
+  # Safe to scale: migrations and seeding take a Postgres advisory lock, and the
+  # fulfilment worker's updates are idempotent.
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "optiq.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: app
+  template:
+    metadata:
+      labels:
+        {{- include "optiq.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: app
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: {{ include "optiq.fullname" . }}-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "optiq.fullname" . }}-secret
+                  key: DATABASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "optiq.fullname" . }}-secret
+                  key: JWT_SECRET
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            # First boot seeds the catalog before listening.
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "optiq.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "optiq.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  selector:
+    {{- include "optiq.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http

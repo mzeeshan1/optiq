@@ -1,0 +1,28 @@
+{{define "wishlist.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Wishlist</h1>
+  {{if .Products}}
+  <div class="mt-8 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10">
+    {{range .Products}}
+    <div>
+      {{template "productCard" .}}
+      <form method="POST" action="/wishlist/{{.ID}}" class="mt-2 px-1">
+        <input type="hidden" name="next" value="/wishlist">
+        <button class="text-xs text-slate-500 hover:text-red-600 underline">Remove</button>
+      </form>
+    </div>
+    {{end}}
+  </div>
+  {{else}}
+  <div class="mt-8 rounded-2xl bg-slate-50 p-12 text-center">
+    <p class="text-lg font-medium text-slate-900">Nothing saved yet.</p>
+    <p class="text-slate-500 mt-1">Tap ♡ on any product to keep it here for later.</p>
+  </div>
+  {{end}}
+</div>
+
+{{template "foot" .}}
+{{end}}

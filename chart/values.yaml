@@ -1,0 +1,84 @@
+# App
+replicaCount: 2
+
+image:
+  repository: optiq
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Sensitive values — override with --set or a separate secrets file
+secrets:
+  postgresPassword: "postgres"
+  jwtSecret: "change-me-in-production"
+
+# Non-sensitive config
+config:
+  port: "8080"
+  seedProducts: "1000"
+  seedCustomers: "200"
+  fulfilmentInterval: "30s"
+
+# PostgreSQL
+postgres:
+  image: postgres:16
+  database: optiq
+  user: postgres
+  storageClassName: gp2
+  storage: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+# Redis
+redis:
+  image: redis:7
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# App resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# Simulated shoppers (image built with: docker build --target loadgen -t optiq-loadgen .)
+loadgen:
+  enabled: false
+  image:
+    repository: optiq-loadgen
+    tag: latest
+    pullPolicy: IfNotPresent
+  users: 20
+  rps: 15
+  errorRate: "0.04"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+serviceMonitor:
+  enabled: true
+
+# Ingress
+ingress:
+  enabled: true
+  className: nginx
+  host: optiq.yourdomain.com
+  tls:
+    enabled: false
+    secretName: optiq-tls

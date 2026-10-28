@@ -1,0 +1,34 @@
+{{define "stores.html"}}
+{{template "head" .}}
+{{template "nav" .}}
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Find a store</h1>
+      <p class="mt-1 text-slate-500">Free eye tests, frame fittings and adjustments in {{len .Cities}} cities.</p>
+    </div>
+    <form method="GET" action="/stores" class="flex items-center gap-2 text-sm">
+      <select name="city" onchange="this.form.submit()" class="border border-slate-300 rounded-lg px-3 py-2 bg-white" aria-label="City">
+        <option value="">All cities</option>
+        {{range .Cities}}<option value="{{.}}" {{if eq . $.City}}selected{{end}}>{{.}}</option>{{end}}
+      </select>
+      <noscript><button class="underline">Filter</button></noscript>
+    </form>
+  </div>
+
+  <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {{range .Stores}}
+    <div class="rounded-2xl ring-1 ring-slate-200 p-5" data-store-id="{{.ID}}">
+      <p class="font-semibold text-slate-900">{{.Name}}</p>
+      <p class="mt-2 text-sm text-slate-600">{{.Street}}<br>{{.PostalCode}} {{.City}}</p>
+      <p class="mt-2 text-sm text-slate-600">{{.Phone}}</p>
+      <p class="mt-2 text-xs text-slate-500">{{.OpeningHours}}</p>
+      <a href="/appointments?store={{.ID}}" class="mt-4 inline-block text-sm font-medium text-sky-800 hover:underline">Book an eye test here →</a>
+    </div>
+    {{end}}
+  </div>
+</div>
+
+{{template "foot" .}}
+{{end}}

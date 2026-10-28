@@ -2,7 +2,7 @@
 replicaCount: 2
 
 image:
-  repository: optiq
+  repository: 138420161232.dkr.ecr.eu-central-1.amazonaws.com/optiq
   tag: latest
   pullPolicy: IfNotPresent
 

@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/mzeeshan1/optiq/compare/v1.2.0...v1.3.0) (2026-10-28)
+
+
+### Features
+
+* **chart:** trigger ci ([43646e0](https://github.com/mzeeshan1/optiq/commit/43646e015e7af6a48deca6009601009b99e08218))
+
 # [1.2.0](https://github.com/mzeeshan1/optiq/compare/v1.1.0...v1.2.0) (2026-10-28)
 
 

@@ -1,0 +1,19 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "deploy/**"
+      - ".github/**"
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    uses: mzeeshan1/ci-workflows/.github/workflows/semantic-release.yml@main
+    with:
+      tag_format: "v"
+    secrets:
+      gh_token: ${{ secrets.GH_TOKEN }}

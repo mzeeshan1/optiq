@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/mzeeshan1/optiq/compare/v1.3.0...v1.4.0) (2026-10-28)
+
+
+### Features
+
+* **chart:** add deploy values ([d1accdf](https://github.com/mzeeshan1/optiq/commit/d1accdf327256f37d06ebb91fccd721936a5be6b))
+
 # [1.3.0](https://github.com/mzeeshan1/optiq/compare/v1.2.0...v1.3.0) (2026-10-28)
 
 

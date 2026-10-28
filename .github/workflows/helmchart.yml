@@ -20,7 +20,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::138420161232:role/github-optiq
+          role-to-assume: arn:aws:iam::138420161232:role/github-actions-optiq
           aws-region: eu-central-1
           audience: sts.amazonaws.com
 

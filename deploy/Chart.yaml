@@ -1,0 +1,7 @@
+apiVersion: v2
+name: optiq
+version: 1.0.0
+dependencies:
+  - name: optiq
+    version: "^1.0.0"
+    repository: "oci://138420161232.dkr.ecr.eu-central-1.amazonaws.com"

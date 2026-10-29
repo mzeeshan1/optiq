@@ -1,7 +1,7 @@
 optiq:
   ingress:
     host: optiq.heimbuero-test.de
-  tls:
-    enabled: true
+    tls:
+      enabled: true
   image:
     tag: v1.2.0

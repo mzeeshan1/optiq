@@ -78,6 +78,8 @@ serviceMonitor:
 ingress:
   enabled: true
   className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   host: optiq.yourdomain.com
   tls:
     enabled: false

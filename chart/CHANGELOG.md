@@ -1,3 +1,10 @@
+# [optiq-chart-v1.3.0](https://github.com/mzeeshan1/optiq/compare/chart-v1.2.0...chart-v1.3.0) (2026-10-29)
+
+
+### Features
+
+* **chart:** add annotations to ingress ([338f705](https://github.com/mzeeshan1/optiq/commit/338f705c053d8d0062d9f9c1c2867e488a7bb611))
+
 # [optiq-chart-v1.2.0](https://github.com/mzeeshan1/optiq/compare/chart-v1.1.0...chart-v1.2.0) (2026-10-28)
 
 
